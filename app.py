@@ -47,15 +47,15 @@ class MentalHealthChatbot:
 
     def get_response(self, user_input):
         # Prepare conversation history
-        messages = [{"role": "system", "parts": [self.system_prompt]}]
+        messages = [{"role": "system", "content": self.system_prompt}]
         
         # Add last 5 messages for context
         for entry in self.history[-5:]:
-            messages.append({"role": "user", "parts": [entry["user"]]})
-            messages.append({"role": "model", "parts": [entry["bot"]]})
+            messages.append({"role": "user", "content": entry["user"]})
+            messages.append({"role": "model", "content": entry["bot"]})
         
         # Add user input
-        messages.append({"role": "user", "parts": [user_input]})
+        messages.append({"role": "user", "content": user_input})
         
         try:
             # Get response from Gemini API
