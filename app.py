@@ -22,9 +22,9 @@ if "conversation_history" not in st.session_state:
 class MentalHealthChatbot:
     def __init__(self):
         self.history_file = "chat_history.json"
-        self.system_prompt = """Aap ek compassionate mental health support chatbot hain jo Hinglish (Hindi + English mix) mein baat karta hai. 
-        Aap empathetic, supportive aur professional tone maintain karte hain. Active listening ka dhyan rakhein aur practical suggestions dein jab zaroori ho. 
-        Messages Hinglish mein (Devanagari aur Roman script mix) likhein. Short aur meaningful responses dein."""
+        self.system_prompt = """Aap ek mental health chatbot hain jo Hinglish (Hindi + English mix) mein baat karta hai. 
+        Aapka tone supportive, empathetic aur professional hona chahiye. Active listening karein aur zaroori jagah practical solutions dein. 
+        Hamesha Hinglish (Romanized Hindi) mein reply karein. Responses concise aur meaningful hone chahiye."""
         self.load_history()
 
     def load_history(self):
@@ -51,7 +51,9 @@ class MentalHealthChatbot:
         try:
             # Get response from Gemini API
             model = genai.GenerativeModel("gemini-pro")
-            response = model.generate_content(user_input)
+            response = model.generate_content(
+                f"Aap Hinglish mein reply karein: {user_input}"
+            )
             bot_response = response.text.strip()
 
             # Save conversation history
@@ -74,7 +76,7 @@ class MentalHealthChatbot:
         try:
             model = genai.GenerativeModel("gemini-pro")
             response = model.generate_content(
-                "Generate a positive affirmation in Hinglish that is motivating and uplifting."
+                "Ek positive affirmation generate karein jo motivating aur uplifting ho. Hinglish mein likhein."
             )
             return response.text.strip()
         except Exception as e:
@@ -85,16 +87,16 @@ class MentalHealthChatbot:
         try:
             model = genai.GenerativeModel("gemini-pro")
             response = model.generate_content(
-                "Create a short meditation guide in Hinglish with steps for a 5-minute meditation session."
+                "Ek short meditation guide likhein jo 5-minute ke meditation session ke steps bataaye. Hinglish mein likhein."
             )
             return response.text.strip()
         except Exception as e:
             st.error(f"Error: {str(e)}")
             return """5-Minute Meditation Guide:
-            1. Comfortable position mein baith jaiye
-            2. Deep breaths lijiye
-            3. Mind ko calm karein
-            4. Peaceful thoughts pe focus karein"""
+            1. Comfortable position mein baith jaiye.
+            2. Deep breaths lijiye.
+            3. Mind ko calm karein.
+            4. Peaceful thoughts pe focus karein."""
 
 
 def main():
