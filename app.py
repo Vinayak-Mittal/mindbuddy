@@ -9,8 +9,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure Gemini API Key
-GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"  # Replace with your actual Gemini API key
+GEMINI_API_KEY = "AIzaSyA81dVLfn5MwXKc-bAWXNwJAaS1z9OIWTg"  # Replace with your actual Gemini API key
 genai.configure(api_key=GEMINI_API_KEY)
+
+# Initialize the chat model
+model = genai.GenerativeModel("gemini-pro")  # Use Gemini Pro model for text generation
 
 # Page configuration
 st.set_page_config(page_title="Hinglish Mental Health Chatbot")
@@ -41,20 +44,12 @@ class MentalHealthChatbot:
 
     def get_response(self, user_input):
         # Prepare conversation history for API
-        messages = [{"role": "system", "content": self.system_prompt}]
-        
-        # Add recent conversation history (last 5 messages)
-        for entry in self.history[-5:]:
-            messages.append({"role": "user", "content": entry["user"]})
-            messages.append({"role": "assistant", "content": entry["bot"]})
-        
-        # Add current user input
-        messages.append({"role": "user", "content": user_input})
+        messages = [{"role": "user", "parts": [user_input]}]
         
         try:
             # Get response from Gemini API
-            response = genai.chat(messages)
-            bot_response = response.last  # Extract last response
+            response = model.generate_content(messages)
+            bot_response = response.text.strip()
 
             # Save to history
             chat_entry = {
@@ -74,22 +69,16 @@ class MentalHealthChatbot:
 
     def generate_affirmation(self):
         try:
-            response = genai.chat([
-                {"role": "system", "content": "Generate a positive affirmation in Hinglish that is motivating and uplifting."},
-                {"role": "user", "content": "Generate a positive affirmation"}
-            ])
-            return response.last
+            response = model.generate_content(["Generate a positive affirmation in Hinglish that is motivating and uplifting."])
+            return response.text.strip()
         except Exception as e:
             st.error(f"Error: {str(e)}")
             return "Aap bohot strong hain. Har mushkil se deal kar sakte hain!"
 
     def generate_meditation_guide(self):
         try:
-            response = genai.chat([
-                {"role": "system", "content": "Generate a short meditation guide in Hinglish with steps for a 5-minute meditation session."},
-                {"role": "user", "content": "Create a meditation guide"}
-            ])
-            return response.last
+            response = model.generate_content(["Generate a short meditation guide in Hinglish with steps for a 5-minute meditation session."])
+            return response.text.strip()
         except Exception as e:
             st.error(f"Error: {str(e)}")
             return """5-Minute Meditation Guide:
