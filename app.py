@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure Gemini API Key
-GEMINI_API_KEY = "AIzaSyA81dVLfn5MwXKc-bAWXNwJAaS1z9OIWTg"  # Replace with your actual Gemini API key
+GEMINI_API_KEY = "AIzaSyA81dVLfn5MwXKc-bAWXNwJAaS1z9OIWTg"  # Use your Gemini API key
 genai.configure(api_key=GEMINI_API_KEY)
 
 # Initialize the chat model
@@ -25,10 +25,13 @@ if 'conversation_history' not in st.session_state:
 class MentalHealthChatbot:
     def __init__(self):
         self.history_file = "chat_history.json"
-        self.system_prompt = """You are a compassionate mental health support chatbot that communicates in Hinglish 
-        (mix of Hindi and English). Provide empathetic, supportive responses while maintaining a professional tone. 
-        Focus on active listening and offering practical suggestions when appropriate. Always respond in Hinglish 
-        using both Devanagari and Roman scripts as needed. Keep responses concise but meaningful."""
+        self.system_prompt = """Tum ek supportive mental health chatbot ho jo Hinglish (Hindi + English) mein baat karta hai. 
+        Hamesha friendly, compassionate aur samajhdari bhare jawab do. Bade complex answers mat do, simple aur asaan language use karo.
+        Example:
+        User: Mujhe aaj bahut stress ho raha hai.
+        Bot: Koi baat nahi, sab theek ho jayega! Thoda deep breathing karo aur ek chhoti si walk pe chale jao. 😊
+        Hamesha Hinglish (Roman + Devanagari) script mein reply karna.
+        """
         self.load_history()
 
     def load_history(self):
@@ -43,8 +46,16 @@ class MentalHealthChatbot:
             json.dump(self.history, f, ensure_ascii=False, indent=2)
 
     def get_response(self, user_input):
-        # Prepare conversation history for API
-        messages = [{"role": "user", "parts": [user_input]}]
+        # Prepare conversation history
+        messages = [{"role": "system", "parts": [self.system_prompt]}]
+        
+        # Add last 5 messages for context
+        for entry in self.history[-5:]:
+            messages.append({"role": "user", "parts": [entry["user"]]})
+            messages.append({"role": "model", "parts": [entry["bot"]]})
+        
+        # Add user input
+        messages.append({"role": "user", "parts": [user_input]})
         
         try:
             # Get response from Gemini API
@@ -69,7 +80,9 @@ class MentalHealthChatbot:
 
     def generate_affirmation(self):
         try:
-            response = model.generate_content(["Generate a positive affirmation in Hinglish that is motivating and uplifting."])
+            response = model.generate_content([
+                "Generate a positive affirmation in Hinglish. Example: Tum bohot strong ho! Har mushkil ka samna kar sakte ho."
+            ])
             return response.text.strip()
         except Exception as e:
             st.error(f"Error: {str(e)}")
@@ -77,7 +90,9 @@ class MentalHealthChatbot:
 
     def generate_meditation_guide(self):
         try:
-            response = model.generate_content(["Generate a short meditation guide in Hinglish with steps for a 5-minute meditation session."])
+            response = model.generate_content([
+                "Generate a short meditation guide in Hinglish with steps for a 5-minute meditation session."
+            ])
             return response.text.strip()
         except Exception as e:
             st.error(f"Error: {str(e)}")
